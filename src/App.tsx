@@ -71,15 +71,15 @@ function App() {
     console.log(
       err && `エラーは全部で、${err}、ありました。再入力をお願いしmす。`
     );
-    // const res= fetch("").then(()=>{
-    //   alert('success!')
-    // }).catch((err)=>{
-    //   if(err.status===400){
-    //     alert('bad request')
-    //   }else if(err.message){
-    //     alert(err.message)
-    //   }
-    // })
+    const res= fetch("").then(()=>{
+      alert('success!')
+    }).catch((err)=>{
+      if(err.status===400){
+        alert('bad request')
+      }else if(err.message){
+        alert(err.message)
+      }
+    })
   };
   return (
     <div>
