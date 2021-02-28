@@ -10,13 +10,13 @@ function App() {
     old?: number;
     tel?: string;
     open?: boolean;
+    success?: string;
   }>({
     name: "Josh",
     mail: "example@example.com",
     address: "address",
     old: 20,
     tel: "08042851990",
-    open: true,
   });
   const [error, setError] = useState<{
     name: string;
@@ -31,8 +31,6 @@ function App() {
     mail: "",
     address: "",
   });
-  const pattern = /^[s/S]/;
-  const a = new RegExp(pattern, "gim");
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let { value, name } = event.target;
     switch (name) {
@@ -41,7 +39,7 @@ function App() {
           setError({ ...error, name: `is empty` });
         } else if (value.length > 20) {
           setError({ ...error, name: `over` });
-        } else if (/^[\s\S]/.test(value)) {
+        } else if (/^\s+$/.test(value)) {
           setError({ ...error, name: `space` });
         } else {
           setError({ ...error, name: `` });
@@ -62,83 +60,126 @@ function App() {
   };
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (state.success) {
+      setState({
+        address: "",
+        mail: "",
+        name: "",
+        old: undefined,
+        open: false,
+        success: undefined,
+        tel: "",
+      });
+      return
+    }
     let err: string[] = [];
     for (let v of Object.keys(error)) {
       if ((error as any)[v].length) {
         err.push((error as any)[v]);
       }
     }
-    console.log(
-      err && `エラーは全部で、${err}、ありました。再入力をお願いしmす。`
-    );
-    const res= fetch("").then(()=>{
-      alert('success!')
-    }).catch((err)=>{
-      if(err.status===400){
-        alert('bad request')
-      }else if(err.message){
-        alert(err.message)
-      }
-    })
+    setState({ ...state, open: true });
+    // const res= fetch("").then(()=>{
+    //   alert('success!')
+    // }).catch((err)=>{
+    //   if(err.status===400){
+    //     alert('bad request')
+    //   }else if(err.message){
+    //     alert(err.message)
+    //   }
+    // })
   };
   return (
     <div>
-      <Modal open={state.open} data={state} handleCancel={()=>{}} handleSubmit={()=>{}} />
+      <div
+        style={{
+          position: "absolute",
+        }}
+      >
+        <Modal
+          open={state.open}
+          data={state}
+          handleCancel={(e) => {
+            setState({ ...state, open: false });
+          }}
+          handleSubmit={async (e) => {
+            const res = await fetch("http://localhost:8000/api/post", {
+              method: "POST",
+              body: JSON.stringify(state),
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+            const { error, message, data } = await res.json();
+            if (error) {
+              alert(message);
+              return;
+            }
+            setState({ ...state, success: "Success!", open: false });
+          }}
+        />
+      </div>
       <form onSubmit={handleSubmit}>
-        <label>
-          Name:
-          <input
-            name="name"
-            value={state.name}
-            type="text"
-            onChange={handleChange}
-          />
-          {error.name && <span style={{ color: `red` }}>{error.name}</span>}
-        </label>
+        {state.success ? (
+          <span>{state.success}</span>
+        ) : (
+          <>
+            <label>
+              Name:
+              <input
+                name="name"
+                value={state.name}
+                type="text"
+                onChange={handleChange}
+              />
+              {error.name && <span style={{ color: `red` }}>{error.name}</span>}
+            </label>
+            <br />
+            <label>
+              old:
+              <input
+                name="old"
+                value={state.old || ``}
+                type="number"
+                onChange={handleChange}
+              />
+              {error.old && <span style={{ color: "red" }}>{error.old}</span>}
+            </label>
+            <br />
+            <label>
+              tel:
+              <input
+                name="tel"
+                value={state.tel || ``}
+                type="number"
+                onChange={handleChange}
+              />
+            </label>
+            <br />
+            <label>
+              Email:
+              <input
+                name="mail"
+                value={state.mail}
+                type="mail"
+                onChange={handleChange}
+              />
+            </label>
+            <br />
+            <label>
+              Address:
+              <input
+                name="address"
+                value={state.address}
+                type="text"
+                onChange={handleChange}
+              />
+            </label>
+          </>
+        )}
         <br />
-        <label>
-          old:
-          <input
-            name="old"
-            value={state.old || ``}
-            type="number"
-            onChange={handleChange}
-          />
-          {error.old && <span style={{ color: "red" }}>{error.old}</span>}
-        </label>
-        <br />
-        <label>
-          tel:
-          <input
-            name="tel"
-            value={state.tel || ``}
-            type="number"
-            onChange={handleChange}
-          />
-        </label>
-        <br />
-        <label>
-          Email:
-          <input
-            name="mail"
-            value={state.mail}
-            type="mail"
-            onChange={handleChange}
-          />
-        </label>
-        <br />
-        <label>
-          Address:
-          <input
-            name="address"
-            value={state.address}
-            type="text"
-            onChange={handleChange}
-          />
-        </label>
-        <input type="submit" value="Submit" />
+        <input type="submit" value={state.success ? "re-typing" : "Submit"} />
       </form>
-      {console.log(state)}
     </div>
   );
 }

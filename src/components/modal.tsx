@@ -11,8 +11,8 @@ type IProps = {
     open?: boolean;
   };
   close?: boolean;
-  handleCancel: () => void;
-  handleSubmit: () => void;
+  handleCancel: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  handleSubmit: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 };
 export default function Modal({
   data,
@@ -21,36 +21,41 @@ export default function Modal({
   open,
   close,
 }: IProps) {
-  console.log(data);
   return open ? (
     <div
       style={{
         height: "100vh",
         width: "100vw",
-        background: "rgba(0,0,0,0.3)",
-        position:"relative"
+        background: "#4e4e4ebb",
+        position: "relative",
       }}
     >
-      <div style={{
-        background:"#fff",
-        width:"50vw",
-        display:"flex",
-        flexDirection:"column",
-        position: "absolute",
-        left:"50vw",
-        top:"50vh",
-        transform:"translate(-50%,-50%)"
-      }}>
-        <div style={{
-          height:"20px",
-          background:"#ccc"
-        }}>
+      <div
+        style={{
+          background: "#fff",
+          width: "50vw",
+          display: "flex",
+          flexDirection: "column",
+          position: "absolute",
+          left: "50vw",
+          top: "50vh",
+          transform: "translate(-50%,-50%)",
+        }}
+      >
+        <div
+          style={{
+            height: "20px",
+            background: "#ccc",
+          }}
+        >
           header
           {close && <span>x</span>}
-          </div>
-        <div style={{
-          padding:"0 1rem"
-        }}>
+        </div>
+        <div
+          style={{
+            padding: "0 1rem",
+          }}
+        >
           <div>
             <span>Name:</span>
             {data.name}
@@ -72,9 +77,34 @@ export default function Modal({
             {data.address}
           </div>
         </div>
-        <div>
-          <button>Cancel</button>
-          <button>Submit</button>
+        <div
+          style={{
+            margin: "1rem",
+            textAlign: "right",
+          }}
+        >
+          <button
+            style={{
+              marginLeft: 8,
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCancel(e);
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            style={{
+              marginLeft: 8,
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSubmit(e);
+            }}
+          >
+            Submit
+          </button>
         </div>
       </div>
     </div>
